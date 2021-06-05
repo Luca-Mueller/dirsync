@@ -17,11 +17,13 @@ class MainWindow(QMainWindow):
         self.src_pth = pathlib.Path()
         self.dst_pth = pathlib.Path()
         self.ds = None
+        self.widgets = dict()
 
         # Src Input
         src_pth_input = QLineEdit()
         src_pth_input.setMaxLength(50)
         src_pth_input.setPlaceholderText("Source Path")
+        self.widgets["src_pth_input"] = src_pth_input
 
         src_pth_input.returnPressed.connect(self.src_return_pressed)
         src_pth_input.selectionChanged.connect(self.src_selection_changed)
@@ -32,15 +34,22 @@ class MainWindow(QMainWindow):
         dst_pth_input = QLineEdit()
         dst_pth_input.setMaxLength(50)
         dst_pth_input.setPlaceholderText("Destination Path")
+        self.widgets["dst_pth_input"] = dst_pth_input
 
         dst_pth_input.returnPressed.connect(self.dst_return_pressed)
         dst_pth_input.selectionChanged.connect(self.dst_selection_changed)
         dst_pth_input.textChanged.connect(self.dst_text_changed)
         dst_pth_input.textEdited.connect(self.dst_text_edited)
 
-        #Sync Button
+        # Switch button (switch src / dst)
+        switch_button = QPushButton("Switch")
+        switch_button.clicked.connect(self.switch)
+        self.widgets["switch_button"] = switch_button
+
+        # Sync Button
         sync_btn = QPushButton("Sync")
         sync_btn.clicked.connect(self.sync)
+        self.widgets["sync_btn"] = sync_btn
 
         # Layout
         main_layout = QVBoxLayout()
@@ -48,6 +57,7 @@ class MainWindow(QMainWindow):
         sync_layout = QHBoxLayout()
         input_layout.addWidget(src_pth_input)
         input_layout.addWidget(dst_pth_input)
+        sync_layout.addWidget(switch_button)
         sync_layout.addWidget(sync_btn)
         input_widget = Color("lightgreen")
         input_widget.setLayout(input_layout)
@@ -83,11 +93,17 @@ class MainWindow(QMainWindow):
     def dst_text_edited(self, s):
         self.dst_pth = pathlib.Path(s).resolve()
 
+    def switch(self):
+        self.src_pth, self.dst_pth = self.dst_pth, self.src_pth
+        self.widgets["src_pth_input"].setText(str(self.src_pth))
+        self.widgets["dst_pth_input"].setText(str(self.dst_pth))
+
     def sync(self):
         self.ds = None
         try:
-            self.ds = DirSync(self.src_pth, self.dst_pth)
+            self.ds = DirSync(self.src_pth, self.dst_pth, True)
             print("Synchronizing " + str(self.src_pth) + " with " + str(self.dst_pth))
+            self.ds.sync()
         except AssertionError as e:
             print("Error while creating DS: " + str(e))
             return

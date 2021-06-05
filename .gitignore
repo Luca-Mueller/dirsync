@@ -1,2 +1,4 @@
 ﻿**/.idea
 **/__pycache__
+**/src_dummy
+**/dst_dummy

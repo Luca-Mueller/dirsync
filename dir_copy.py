@@ -3,15 +3,6 @@ import shutil
 import sys
 
 
-#TODO:
-# - determine source and destination
-# - copy dir if not there, else switch to dir & repeat (for all directories)
-#   sync src, dst:
-#       for dir in src:
-#           if not dir.exists(dst) -> dir.copy(src, dst)
-#           else -> sync src/dir, dst/dir
-
-
 class DirSync:
     def __init__(self, src: pathlib.Path, dst: pathlib.Path, verbose=False):
         assert src.exists(), "Source does not exist."
@@ -36,13 +27,23 @@ class DirSync:
                 else:
                     dir_rel_child = (dir_rel / dir_child).relative_to(self.src)
                     self.sync_dir(dir_rel_child)
+            elif dir_child.is_file():
+                if not (dst / dir_child.name).exists():
+                    print("Copy " + str(dir_child))
+                    shutil.copy((src / dir_child.name), (dst / dir_child.name))
 
     def sync(self):
         for item in self.src.iterdir():
             if item.is_dir():
-                dir_rel = item.relative_to(self.src)
-                self.sync_dir(dir_rel)
+                if not (self.dst / item.name).exists():
+                    shutil.copytree((self.src / item.name), (self.dst / item.name))
+                else:
+                    dir_rel = item.relative_to(self.src)
+                    self.sync_dir(dir_rel)
+            elif item.is_file():
+                shutil.copy((self.src / item.name), (self.dst / item.name))
         print("Done!")
+
 
 def main():
     src = input("Source: ")
