@@ -102,10 +102,11 @@ class MainWindow(QMainWindow):
         self.ds = None
         try:
             self.ds = DirSync(self.src_pth, self.dst_pth, True)
-            print("Synchronizing " + str(self.src_pth) + " with " + str(self.dst_pth))
+            sys.stderr.write("Synchronizing " + str(self.src_pth) +
+                             " with " + str(self.dst_pth) + '\n')
             self.ds.sync()
         except AssertionError as e:
-            print("Error while creating DS: " + str(e))
+            sys.stderr.write("Error while creating DS: " + str(e) + '\n')
             return
 
 

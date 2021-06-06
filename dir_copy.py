@@ -22,14 +22,14 @@ class DirSync:
         for dir_child in src.iterdir():
             if dir_child.is_dir():
                 if not (dst / dir_child.name).exists():
-                    print("Copy " + str(dir_child))
+                    sys.stderr.write("Copy " + str(dir_child) + '\n')
                     shutil.copytree((src / dir_child.name), (dst / dir_child.name))
                 else:
                     dir_rel_child = (dir_rel / dir_child).relative_to(self.src)
                     self.sync_dir(dir_rel_child)
             elif dir_child.is_file():
                 if not (dst / dir_child.name).exists():
-                    print("Copy " + str(dir_child))
+                    sys.stderr.write("Copy " + str(dir_child) + '\n')
                     shutil.copy((src / dir_child.name), (dst / dir_child.name))
 
     def sync(self):
