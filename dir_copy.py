@@ -1,15 +1,19 @@
 import pathlib
 import shutil
 import sys
+from typing import List
 
 
 class DirSync:
-    def __init__(self, src: pathlib.Path, dst: pathlib.Path, verbose=False):
+    def __init__(self, src: pathlib.Path, dst: pathlib.Path, ignore: List[str] = None, verbose=False):
         assert src.exists(), "Source does not exist."
         assert dst.exists(), "Destination does not exist."
 
         self.src = src
         self.dst = dst
+        self.ignore = list()
+        if ignore is not None:
+            self.ignore = ignore
         self.verbose = verbose
 
     def sync_dir(self, dir_rel: pathlib.Path):
@@ -20,6 +24,8 @@ class DirSync:
             sys.stderr.write("Sync " + str(dir_rel) + '\n')
 
         for dir_child in src.iterdir():
+            if dir_child.name in self.ignore:
+                continue
             if dir_child.is_dir():
                 if not (dst / dir_child.name).exists():
                     sys.stderr.write("Copy " + str(dir_child) + '\n')
@@ -34,6 +40,8 @@ class DirSync:
 
     def sync(self):
         for item in self.src.iterdir():
+            if item.name in self.ignore:
+                continue
             if item.is_dir():
                 if not (self.dst / item.name).exists():
                     shutil.copytree((self.src / item.name), (self.dst / item.name))
