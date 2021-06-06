@@ -1,10 +1,11 @@
-from dir_copy import DirSync
+from dir_copy import Select, DirSync
 import sys
 import pathlib
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QLineEdit, QMainWindow, QWidget, \
-                            QVBoxLayout, QHBoxLayout, QPushButton, QLabel
+                            QVBoxLayout, QHBoxLayout, QPushButton, QLabel, \
+                            QCheckBox
 from PyQt5.QtGui import QColor, QPalette
 
 class MainWindow(QMainWindow):
@@ -17,6 +18,7 @@ class MainWindow(QMainWindow):
         self.src_pth = pathlib.Path()
         self.dst_pth = pathlib.Path()
         self.ignore = list()
+        self.selected = Select.ALL
         self.ds = None
         self.widgets = dict()
 
@@ -60,7 +62,7 @@ class MainWindow(QMainWindow):
         ignore_input.textChanged.connect(self.ignore_text_changed)
 
         # Switch button (switch src / dst)
-        switch_button = QPushButton("Switch")
+        switch_button = QPushButton("Switch Paths")
         switch_button.clicked.connect(self.switch)
         self.widgets["switch_button"] = switch_button
 
@@ -69,10 +71,23 @@ class MainWindow(QMainWindow):
         sync_btn.clicked.connect(self.sync)
         self.widgets["sync_btn"] = sync_btn
 
+        # Checkoxes
+        dir_checkbox = QCheckBox("Directories")
+        dir_checkbox.setCheckState(Qt.Checked)
+        self.widgets["dir_checkbox"] = dir_checkbox
+        file_checkbox = QCheckBox("Files")
+        file_checkbox.setCheckState(Qt.Checked)
+        self.widgets["file_checkbox"] = file_checkbox
+
+        dir_checkbox.stateChanged.connect(self.dir_state_changed)
+        file_checkbox.stateChanged.connect(self.file_state_changed)
+
         # Layout
         main_layout = QVBoxLayout()
         input_layout = QVBoxLayout()
-        sync_layout = QHBoxLayout()
+        buttons_layout = QHBoxLayout()
+        sync_layout = QVBoxLayout()
+        checkbox_layout = QVBoxLayout()
 
         input_layout.addWidget(src_label)
         input_layout.addWidget(src_pth_input)
@@ -80,17 +95,24 @@ class MainWindow(QMainWindow):
         input_layout.addWidget(dst_pth_input)
         input_layout.addWidget(ignore_label)
         input_layout.addWidget(ignore_input)
-
         sync_layout.addWidget(switch_button)
         sync_layout.addWidget(sync_btn)
+        checkbox_layout.addWidget(dir_checkbox)
+        checkbox_layout.addWidget(file_checkbox)
 
         input_widget = Color("lightgreen")
         input_widget.setLayout(input_layout)
         sync_widget = Color("darkcyan")
         sync_widget.setLayout(sync_layout)
+        checkbox_widget = Color("darkcyan")
+        checkbox_widget.setLayout(checkbox_layout)
+        buttons_widget = Color("lightblue")
+        buttons_widget.setLayout(buttons_layout)
 
+        buttons_layout.addWidget(sync_widget)
+        buttons_layout.addWidget(checkbox_widget)
         main_layout.addWidget(input_widget)
-        main_layout.addWidget(sync_widget)
+        main_layout.addWidget(buttons_widget)
         main_widget = QWidget()
         main_widget.setLayout(main_layout)
         self.setCentralWidget(main_widget)
@@ -124,6 +146,18 @@ class MainWindow(QMainWindow):
         ignore = [i.strip() for i in ignore]
         self.ignore = ignore
 
+    def dir_state_changed(self, state: int):
+        if state == 0:
+            self.selected = self.selected ^ Select.DIR
+        else:
+            self.selected = self.selected | Select.DIR
+
+    def file_state_changed(self, state: int):
+        if state == 0:
+            self.selected = self.selected ^ Select.FILE
+        else:
+            self.selected = self.selected | Select.FILE
+
     def switch(self):
         self.src_pth, self.dst_pth = self.dst_pth, self.src_pth
         self.widgets["src_pth_input"].setText(str(self.src_pth))
@@ -132,7 +166,7 @@ class MainWindow(QMainWindow):
     def sync(self):
         self.ds = None
         try:
-            self.ds = DirSync(self.src_pth, self.dst_pth, ignore=self.ignore, verbose=True)
+            self.ds = DirSync(self.src_pth, self.dst_pth, selected=self.selected, ignore=self.ignore, verbose=True)
             sys.stderr.write("Synchronizing " + str(self.src_pth) +
                              " with " + str(self.dst_pth) + '\n')
             self.ds.sync()
