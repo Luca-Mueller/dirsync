@@ -20,9 +20,9 @@ class DirSync:
         self.src = src
         self.dst = dst
         self.ignore = list()
-        self.selected = selected
         if ignore is not None:
             self.ignore = ignore
+        self.selected = selected
         self.verbose = verbose
 
     def sync_dir(self, dir_rel: pathlib.Path):
@@ -35,30 +35,30 @@ class DirSync:
         for dir_child in src.iterdir():
             if dir_child.name in self.ignore:
                 continue
-            if dir_child.is_dir() and self.selected & Select.DIR:
-                if not (dst / dir_child.name).exists():
+            if dir_child.is_dir():
+                if not (dst / dir_child.name).exists() and self.selected & Select.DIR:
                     sys.stderr.write("Copy " + str(dir_child) + '\n')
-                    shutil.copytree((src / dir_child.name), (dst / dir_child.name))
+                    shutil.copytree(str(src / dir_child.name), str(dst / dir_child.name))
                 else:
                     dir_rel_child = (dir_rel / dir_child).relative_to(self.src)
                     self.sync_dir(dir_rel_child)
             elif dir_child.is_file() and self.selected & Select.FILE:
                 if not (dst / dir_child.name).exists():
                     sys.stderr.write("Copy " + str(dir_child) + '\n')
-                    shutil.copy((src / dir_child.name), (dst / dir_child.name))
+                    shutil.copy(str(src / dir_child.name), str(dst / dir_child.name))
 
     def sync(self):
-        for item in self.src.iterdir():
-            if item.name in self.ignore:
+        for dir_child in self.src.iterdir():
+            if dir_child.name in self.ignore:
                 continue
-            if item.is_dir() and self.selected & Select.DIR:
-                if not (self.dst / item.name).exists():
-                    shutil.copytree((self.src / item.name), (self.dst / item.name))
+            if dir_child.is_dir():
+                if not (self.dst / dir_child.name).exists() and self.selected & Select.DIR:
+                    shutil.copytree((self.src / dir_child.name), (self.dst / dir_child.name))
                 else:
-                    dir_rel = item.relative_to(self.src)
+                    dir_rel = dir_child.relative_to(self.src)
                     self.sync_dir(dir_rel)
-            elif item.is_file() and self.selected & Select.FILE:
-                shutil.copy((self.src / item.name), (self.dst / item.name))
+            elif dir_child.is_file() and self.selected & Select.FILE:
+                shutil.copy((self.src / dir_child.name), (self.dst / dir_child.name))
         print("Done!")
 
 

@@ -5,8 +5,9 @@ import pathlib
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QLineEdit, QMainWindow, QWidget, \
                             QVBoxLayout, QHBoxLayout, QPushButton, QLabel, \
-                            QCheckBox
+                            QCheckBox, QToolBar, QAction
 from PyQt5.QtGui import QColor, QPalette
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -25,6 +26,11 @@ class MainWindow(QMainWindow):
         self.setup()
 
     def setup(self):
+        # Toolbar
+        toolbar = QToolBar("Toolbar")
+        self.addToolBar(toolbar)
+        self.widgets["toolbar"] = toolbar
+
         # Src Input
         src_label = QLabel()
         src_label.setText("From:")
@@ -102,11 +108,11 @@ class MainWindow(QMainWindow):
 
         input_widget = Color("lightgreen")
         input_widget.setLayout(input_layout)
-        sync_widget = Color("darkcyan")
+        sync_widget = Color("lightblue")
         sync_widget.setLayout(sync_layout)
-        checkbox_widget = Color("darkcyan")
+        checkbox_widget = Color("lightblue")
         checkbox_widget.setLayout(checkbox_layout)
-        buttons_widget = Color("lightblue")
+        buttons_widget = Color("darkcyan")
         buttons_widget.setLayout(buttons_layout)
 
         buttons_layout.addWidget(sync_widget)
@@ -166,7 +172,8 @@ class MainWindow(QMainWindow):
     def sync(self):
         self.ds = None
         try:
-            self.ds = DirSync(self.src_pth, self.dst_pth, selected=self.selected, ignore=self.ignore, verbose=True)
+            self.ds = DirSync(self.src_pth, self.dst_pth, selected=self.selected,
+                              ignore=self.ignore, verbose=True)
             sys.stderr.write("Synchronizing " + str(self.src_pth) +
                              " with " + str(self.dst_pth) + '\n')
             self.ds.sync()
