@@ -75,12 +75,12 @@ class MainWindow(QMainWindow):
 
         # Switch button (switch src / dst)
         switch_button = QPushButton("Switch Paths")
-        switch_button.addAction(switch_action)
+        switch_button.pressed.connect(switch_action.trigger)
         self.widgets["switch_button"] = switch_button
 
         # Sync Button
         sync_btn = QPushButton("Sync")
-        sync_btn.addAction(sync_action)
+        sync_btn.pressed.connect(sync_action.trigger)
         self.widgets["sync_btn"] = sync_btn
 
         # Checkoxes
