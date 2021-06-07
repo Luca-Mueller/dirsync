@@ -53,12 +53,12 @@ class DirSync:
                 continue
             if dir_child.is_dir():
                 if not (self.dst / dir_child.name).exists() and self.selected & Select.DIR:
-                    shutil.copytree((self.src / dir_child.name), (self.dst / dir_child.name))
+                    shutil.copytree(str(self.src / dir_child.name), str(self.dst / dir_child.name))
                 else:
                     dir_rel = dir_child.relative_to(self.src)
                     self.sync_dir(dir_rel)
             elif dir_child.is_file() and self.selected & Select.FILE:
-                shutil.copy((self.src / dir_child.name), (self.dst / dir_child.name))
+                shutil.copy(str(self.src / dir_child.name), str(self.dst / dir_child.name))
         print("Done!")
 
 

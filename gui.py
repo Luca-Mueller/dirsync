@@ -1,12 +1,17 @@
+"""
+    DirSync GUI
+    Icons by Yusuke Kamiyamane (http://p.yusukekamiyamane.com/)
+"""
+
 from dir_copy import Select, DirSync
 import sys
 import pathlib
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtWidgets import QApplication, QLineEdit, QMainWindow, QWidget, \
                             QVBoxLayout, QHBoxLayout, QPushButton, QLabel, \
                             QCheckBox, QToolBar, QAction
-from PyQt5.QtGui import QColor, QPalette
+from PyQt5.QtGui import QColor, QPalette, QIcon
 
 
 class MainWindow(QMainWindow):
@@ -26,10 +31,17 @@ class MainWindow(QMainWindow):
         self.setup()
 
     def setup(self):
-        # Toolbar
-        toolbar = QToolBar("Toolbar")
-        self.addToolBar(toolbar)
-        self.widgets["toolbar"] = toolbar
+        # Actions
+        switch_action = QAction(QIcon("../../Fugue Icons/icons/arrow-switch.png"),
+                                "Switch", self)
+        switch_action.setStatusTip("Switch Source & Destination Path")
+        switch_action.triggered.connect(self.switch)
+        self.menuBar().addAction(switch_action)
+
+        sync_action = QAction(QIcon("../../Fugue Icons/icons/drive--plus.png"), "Sync", self)
+        sync_action.setStatusTip("Sync Directories")
+        sync_action.triggered.connect(self.sync)
+        self.menuBar().addAction(sync_action)
 
         # Src Input
         src_label = QLabel()
@@ -39,9 +51,6 @@ class MainWindow(QMainWindow):
         src_pth_input.setPlaceholderText("Source Path")
         self.widgets["src_pth_input"] = src_pth_input
 
-        src_pth_input.returnPressed.connect(self.src_return_pressed)
-        src_pth_input.selectionChanged.connect(self.src_selection_changed)
-        src_pth_input.textChanged.connect(self.src_text_changed)
         src_pth_input.textEdited.connect(self.src_text_edited)
 
         # Dst Input
@@ -52,9 +61,6 @@ class MainWindow(QMainWindow):
         dst_pth_input.setPlaceholderText("Destination Path")
         self.widgets["dst_pth_input"] = dst_pth_input
 
-        dst_pth_input.returnPressed.connect(self.dst_return_pressed)
-        dst_pth_input.selectionChanged.connect(self.dst_selection_changed)
-        dst_pth_input.textChanged.connect(self.dst_text_changed)
         dst_pth_input.textEdited.connect(self.dst_text_edited)
 
         # Ignore Input
@@ -65,16 +71,16 @@ class MainWindow(QMainWindow):
         ignore_input.setPlaceholderText("DirName, FileName, ...")
         self.widgets["ignore_input"] = ignore_input
 
-        ignore_input.textChanged.connect(self.ignore_text_changed)
+        ignore_input.textChanged.connect(self.ignore_text_edited)
 
         # Switch button (switch src / dst)
         switch_button = QPushButton("Switch Paths")
-        switch_button.clicked.connect(self.switch)
+        switch_button.addAction(switch_action)
         self.widgets["switch_button"] = switch_button
 
         # Sync Button
         sync_btn = QPushButton("Sync")
-        sync_btn.clicked.connect(self.sync)
+        sync_btn.addAction(sync_action)
         self.widgets["sync_btn"] = sync_btn
 
         # Checkoxes
@@ -123,31 +129,13 @@ class MainWindow(QMainWindow):
         main_widget.setLayout(main_layout)
         self.setCentralWidget(main_widget)
 
-    def src_return_pressed(self):
-        pass
-
-    def src_selection_changed(self):
-        pass
-
     def src_text_edited(self, s):
-        pass
-
-    def src_text_changed(self, s):
         self.src_pth = pathlib.Path(s).resolve()
 
-    def dst_return_pressed(self):
-        pass
-
-    def dst_selection_changed(self):
-        pass
-
     def dst_text_edited(self, s):
-        pass
-
-    def dst_text_changed(self, s):
         self.dst_pth = pathlib.Path(s).resolve()
 
-    def ignore_text_changed(self, s):
+    def ignore_text_edited(self, s):
         ignore = s.split(',')
         ignore = [i.strip() for i in ignore]
         self.ignore = ignore
@@ -192,6 +180,7 @@ class Color(QWidget):
         self.setPalette(palette)
 
 app = QApplication(sys.argv)
+app.setWindowIcon(QIcon("../../Fugue Icons/icons/arrow-circle-double-135.png"))
 
 window = MainWindow()
 window.show()
