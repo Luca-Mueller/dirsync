@@ -48,7 +48,7 @@ class DirSync:
                     dir_rel_child = (dir_rel / dir_child).relative_to(self.src)
                     self.sync(dir_rel=dir_rel_child)
             elif dir_child.is_file() and self.selected & Select.FILE:
-                if not (dst / dir_child.name).exists():
+                if not (dst / dir_child.name).exists() and dst.exists():
                     sys.stderr.write("Copy " + str(dir_child) + '\n')
                     shutil.copy(str(src / dir_child.name), str(dst / dir_child.name))
 
