@@ -21,7 +21,7 @@ class DirSync:
         self.dst = dst
         self.ignore = list()
         if ignore is not None:
-            self.ignore = ignore
+            self.ignore = [i.lower() for i in ignore]
         self.selected = selected
         self.verbose = verbose
 
@@ -38,18 +38,18 @@ class DirSync:
             sys.stderr.write("Sync " + str(dir_rel) + '\n')
 
         for dir_child in src.iterdir():
-            if dir_child.name in self.ignore:
+            if dir_child.name.lower() in self.ignore:
                 continue
             if dir_child.is_dir():
                 if not (dst / dir_child.name).exists() and self.selected & Select.DIR:
-                    sys.stderr.write("Copy " + str(dir_child) + '\n')
+                    sys.stderr.write("Copy " + str(dir_child.relative_to(self.src)) + '\n')
                     shutil.copytree(str(src / dir_child.name), str(dst / dir_child.name))
                 else:
                     dir_rel_child = (dir_rel / dir_child).relative_to(self.src)
                     self.sync(dir_rel=dir_rel_child)
             elif dir_child.is_file() and self.selected & Select.FILE:
                 if not (dst / dir_child.name).exists() and dst.exists():
-                    sys.stderr.write("Copy " + str(dir_child) + '\n')
+                    sys.stderr.write("Copy " + str(dir_child.relative_to(self.src)) + '\n')
                     shutil.copy(str(src / dir_child.name), str(dst / dir_child.name))
 
 

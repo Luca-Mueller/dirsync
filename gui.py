@@ -1,6 +1,5 @@
 """
     DirSync GUI
-    Icons by Yusuke Kamiyamane (http://p.yusukekamiyamane.com/)
 """
 
 from dir_copy import Select, DirSync
@@ -12,6 +11,9 @@ from PyQt5.QtWidgets import QApplication, QLineEdit, QMainWindow, QWidget, \
                             QVBoxLayout, QHBoxLayout, QPushButton, QLabel, \
                             QCheckBox, QToolBar, QAction
 from PyQt5.QtGui import QColor, QPalette, QIcon
+
+# Icons by Yusuke Kamiyamane (http://p.yusukekamiyamane.com/)
+ICONS_PATH = "../../Fugue Icons/icons/"
 
 
 class MainWindow(QMainWindow):
@@ -32,13 +34,13 @@ class MainWindow(QMainWindow):
 
     def setup(self):
         # Actions
-        switch_action = QAction(QIcon("../../Fugue Icons/icons/arrow-switch.png"),
+        switch_action = QAction(QIcon(ICONS_PATH + "arrow-switch.png"),
                                 "Switch", self)
         switch_action.setStatusTip("Switch Source & Destination Path")
         switch_action.triggered.connect(self.switch)
         self.menuBar().addAction(switch_action)
 
-        sync_action = QAction(QIcon("../../Fugue Icons/icons/drive--plus.png"), "Sync", self)
+        sync_action = QAction(QIcon(ICONS_PATH + "drive--plus.png"), "Sync", self)
         sync_action.setStatusTip("Sync Directories")
         sync_action.triggered.connect(self.sync)
         self.menuBar().addAction(sync_action)
@@ -179,8 +181,9 @@ class Color(QWidget):
         palette.setColor(QPalette.Window, QColor(color))
         self.setPalette(palette)
 
+
 app = QApplication(sys.argv)
-app.setWindowIcon(QIcon("../../Fugue Icons/icons/arrow-circle-double-135.png"))
+app.setWindowIcon(QIcon(ICONS_PATH + "arrow-circle-double-135.png"))
 
 window = MainWindow()
 window.show()
