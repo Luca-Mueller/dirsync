@@ -2,14 +2,14 @@
     DirSync GUI
 """
 
-from dir_copy import Select, DirSync
+from dirsync import Select, DirSync
 import sys
 import pathlib
 
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QLineEdit, QMainWindow, QWidget, \
                             QVBoxLayout, QHBoxLayout, QPushButton, QLabel, \
-                            QCheckBox, QToolBar, QAction
+                            QCheckBox, QAction
 from PyQt5.QtGui import QColor, QPalette, QIcon
 
 # Icons by Yusuke Kamiyamane (http://p.yusukekamiyamane.com/)
